@@ -11,6 +11,13 @@
  In this example code the 8 buttons are turned into a drum-machine-like interface. You can add/delete an instrument step by clicking on the button when the led is blinking at the right time.
  You can reset the drum machine by long-pressing the most left button on the bottom row. 
 
+ This sketc requires the MIDI library (optional) / use with Hairless Midi software on receiving computer.
+ 
+ useful teaching applications:
+- Push button single press and long press
+- MIDI
+- Multi dimensional arrays
+- Serial communication ( int )
 */
 
 //#define MIDION

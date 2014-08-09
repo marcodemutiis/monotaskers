@@ -1,18 +1,26 @@
-//
-// o
-//
-//
-// Author	 	Marco De Mutiis
-// 				Marco De Mutiis
-//
-// Date			24/5/14 12:32 PM
-// Version		0
-//
-// Copyright	© Marco De Mutiis, 2014
-// License		<#license#>
-//
-// See			ReadMe.txt for references
-//
+/*
+ Locket Rauncher
+ 
+ info:          http://monotaskers.com
+ Author	 	Marco De Mutiis
+ 
+ Date	        24/7/14
+ Version	0
+ 
+ This is a sample code to be uploaded for the o, a Monotaskers module made of a rotary encoder (push-button enabled) with a 24 led ring around it, 
+ inspired by similar controller knob interfaces, like the arc and the duet.  
+ In this example the lights will turn on according to the position of the rotary encoder, and will blink all at once if the encoder is pushed. If the monotasker
+ is not touched for longer than 10 minutes it will start a light animation unti it is touched again.
+ 
+ Requires ShiftOutX library by Juan Hernandez and the QuandEncoder library by Pedro Rodrigues.
+ 
+ useful teaching applications:
+- Rotary encoder
+- Controlling leds
+- Pin extension with shift registers IC 74HC595
+- Debounce
+- Serial communication ( int )
+ */
 
 
 //#define ABSOLUTE //prints absolute position to serial

@@ -9,6 +9,16 @@
  
  This is a sample code to be uploaded for the ADSR, a Monotaskers module made of 4 analog sliders+leds.
  
+ This sketch requires FScale library - Floating Point Autoscale Function V0.1 Paul Badger 2007 (Modified from code by Greg Shakar) http://playground.arduino.cc/Main/Fscale
+ 
+ 
+  useful teaching applications:
+- Analog sensors
+- Re-mapping values
+- Smoothing
+- Fading (PWM)
+- Serial communication ( sending multiple values )
+ 
  
  HARDWARE SETUP:
  SLID1 1 > ARD GND
@@ -37,11 +47,6 @@
  */
 
 #include <math.h>
-/*
-http://playground.arduino.cc/Main/Fscale
- Floating Point Autoscale Function V0.1 Paul Badger 2007
- Modified from code by Greg Shakar
- */
 
 //slider input pins
 const int slideIn[4] = {
@@ -102,20 +107,12 @@ void loop(){
    
     Serial.print(average[i]);
     Serial.print(" ");
-    //delay(1);
-
-    //      char sliderID[4] = {'a', 'b', 'c', 'd'};
-    //      Serial.write(sliderID[i]);
-    //      Serial.write(average[i]);
-    //   }
-
-    //    averageOld[i] = average[i];
 
     //remap slider value to fscale value for led
     ledVal[i] = fscale( 0, 1023, 0, 255, slideInv[i], -1.5);
     analogWrite(leds[i], ledVal[i]);
   }
-  Serial.println();
+  Serial.println(); //linefeed break will be used on receiving end to determine that the information is complete.
 }
 
 //FSCALE------------------------------------------------------------------------------------------------------------------------

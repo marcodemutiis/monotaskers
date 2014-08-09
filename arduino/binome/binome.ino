@@ -8,6 +8,14 @@
  Version	0
 
  This is a sample code to be uploaded for Binome, a Monotaskers module made of 4 silicon pusbutton, inspired by the Monome.
+ 
+ 
+ Requires the MIDI library (optional) / use with Hairless Midi software on receiving computer.
+ 
+  useful teaching applications:
+- Push buttons
+- MIDI 
+- Serial communication ( chars )
 */
 
 #include <MIDI.h>
@@ -157,7 +165,6 @@ void buttonPress(){
 
     if (digitalRead(button[i]) == 0 && btnPressed[i]==LOW){                   //if no button is pushed and was not previously pushed, 
       if(!noTouch){
-        //Serial.println(currentMillisNOTOUCH - previousMillisNOTOUCH);
         if(currentMillisNOTOUCH - previousMillisNOTOUCH > intervalNOTOUCH) {
           previousMillisNOTOUCH = currentMillisNOTOUCH;
           noTouch=true; 
