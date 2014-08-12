@@ -1,12 +1,12 @@
- /*
+/*
   *
-  * This sketch demonstrates how read values from a binome 
-  * monotasker in Processing and trigger samples with minim 
-  * library.
-  * for more info visit monotaskers.com.
-  *
-  */
-  
+ * This sketch demonstrates how read values from a binome 
+ * monotasker in Processing and trigger samples with minim 
+ * library.
+ * for more info visit monotaskers.com.
+ *
+ */
+
 import processing.serial.*;
 import controlP5.*;
 import ddf.minim.*;
@@ -26,6 +26,9 @@ char val;
 Serial myPort;
 String portName = Serial.list()[0];
 boolean myPortIsOpen = false;
+boolean [] pushed = {
+  false, false, false, false
+};
 
 char [] pushBtn = {
   '2', '1', '4', '3'
@@ -77,9 +80,10 @@ void draw() {
   //background(100);//(128, 0, 54);
   noStroke();
   if (!myPortIsOpen) fill(100);
-  else fill(100, 100, 100, 10);
-  rect(0, 0, width, height);
-
+  else fill(100, 100, 100, 75); 
+  rect(0, 300, width, height);
+  fill(100);
+  rect(0, 0, width, 300);
 
   //logos//
   fill(255);
@@ -109,54 +113,50 @@ void draw() {
       fill(100);
       rect(35+50*i, 200, 40, 40, 7);
 
-      if (val == ' ') {
-        //draw rectangles grey
-        fill(100, 100, 100, 50);
+      if (val == ' ') {      
+        if (!pushed[i])fill(100, 100, 100, 50); //draw rectangles grey if buttons are NOT PUSHED
+        else fill(255); //draw rectangle white if PUSHED
         rect(35+50*i, 200, 40, 40, 7);
       }
 
       //BUTTON PUSHED state ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      else if (val == pushBtn[i]) {
+      else if (pushBtn[i] == val) {
 
         //trigger the sample
         sample[i].trigger();
 
-
-        //draw rectangle white if PUSHED
-        fill(255);
-        rect(35+50*i, 200, 40, 40, 7);
-
         stroke(255);
+        noFill();
         // use the mix buffer to draw the waveforms.
         for (int j = 0; j < sample[i].bufferSize() - 1; j++)
         {
           float x1 = map(j, 0, sample[i].bufferSize(), 0, width);
           float x2 = map(j+1, 0, sample[i].bufferSize(), 0, width);
-          line(x1, 400 - sample[i].mix.get(j)*50, x2, 400  - sample[i].mix.get(j+1)*50);
+          line(x1, 400 - sample[i].mix.get(j)*200, x2, 400 - sample[i].mix.get(j+1)*200);
         }
+        
         val = ' ';
+        pushed[i]=true;
       }
 
 
       //BUTTON RELEASED state ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      else if (val == releaseBtn[i]) {
+      else if (releaseBtn[i] == val) {
+  
         //trigger the sample
         sample[i+4].trigger();
 
-        //draw rectangle dark grey if RELEASED
-        fill(0);
-        rect(35+50*i, 200, 40, 40, 7);
-
-
         // use the mix buffer to draw the waveforms.
         stroke(255);
+        noFill();
         for (int j = 0; j < sample[i+4].bufferSize() - 1; j++)
         {
           float x1 = map(j, 0, sample[i+4].bufferSize(), 0, width);
           float x2 = map(j+1, 0, sample[i+4].bufferSize(), 0, width);
-          line(x1, 400 - sample[i+4].mix.get(j)*50, x2, 400 - sample[i].mix.get(j+1)*50);
+          line(x1, 400 - sample[i+4].mix.get(j)*200, x2, 400 - sample[i+4].mix.get(j+1)*200);
         }
         val = ' ';
+        pushed[i]=false;
       }
     }
   }
