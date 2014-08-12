@@ -15,16 +15,19 @@
  Requires ShiftOutX library by Juan Hernandez and the QuandEncoder library by Pedro Rodrigues.
  
  useful teaching applications:
-- Rotary encoder
-- Controlling leds
-- Pin extension with shift registers IC 74HC595
-- Debounce
-- Serial communication ( int )
+ - Rotary encoder
+ - Controlling leds
+ - Pin extension with shift registers IC 74HC595
+ - Debounce
+ - Serial communication ( int )
  */
 
 
 //#define ABSOLUTE //prints absolute position to serial
 #define LIGHTPOS //prints light position (0-23) to serial
+
+#define PROCESSING //for Processing we will use Serial.write
+//#define OPENFRAMEWORKS //for openFrameworks we will use Serial.print
 
 #include <QuadEncoder.h>
 #include <SPI.h>
@@ -166,7 +169,14 @@ void loop(){
       if(push == 0) {
         noTouch = false;
         lastReportedPos = lightPos-1;
+
+#ifdef OPENFRAMEWORKS
+        Serial.println("P");
+#endif
+
+#ifdef PROCESSING
         Serial.write("P");
+#endif
         //light animation for push/////
 
         for(int looping=0; looping<2; looping++){
@@ -196,22 +206,34 @@ void loop(){
 
   if (qe1Move=='>'){
     lightPos++;
-     if(lightPos>23) {
+    if(lightPos>23) {
       lightPos=0;
       reverse = false;
     }
     absolutePos++;
 #ifdef ABSOLUTE
+#ifdef OPENFRAMEWORKS
+    Serial.println(absolutePos);
+#endif
+#ifdef PROCESSING
     Serial.write(absolutePos);
 #endif
+#endif
+
 #ifdef LIGHTPOS
+#ifdef OPENFRAMEWORKS
+    Serial.println(lightPos);
+#endif
+#ifdef PROCESSING
     Serial.write(lightPos);
+#endif
+
 #endif
   }
 
   else if (qe1Move=='<'){
     lightPos--;
-     if(lightPos<0) {
+    if(lightPos<0) {
       lightPos=23;
       reverse = true;
     }
@@ -227,7 +249,7 @@ void loop(){
 
   //TO//LEDS////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   if (lastReportedPos != lightPos) {
-   
+
 
 
     indexLED = lightPos;
@@ -260,6 +282,7 @@ void oneRingIndexLED(int index){
   }
 
 }
+
 
 
 
