@@ -1,11 +1,11 @@
- /*
+/*
   *
-  * This sketch demonstrates how read values from a adsr 
-  * monotasker in Processing and adjust volume of 4 files  
-  * playing through the minim library.
-  * for more info visit monotaskers.com.
-  *
-  */
+ * This sketch demonstrates how read values from a adsr 
+ * monotasker in Processing and adjust volume of 4 files  
+ * playing through the minim library.
+ * for more info visit monotaskers.com.
+ *
+ */
 
 import processing.serial.*;
 import controlP5.*;
@@ -19,25 +19,32 @@ AudioPlayer [] player;
 ControlP5 cp5;
 DropdownList d1;
 
+
+
 PFont f;
 
 Serial myPort;
-String portName = Serial.list()[0];
-boolean myPortIsOpen = false;
-int LINE_FEED=10; 
+String portName = Serial.list()[0]; 
+String data;                    //read raw data from arduino
+int[] vals;                     //split data and convert to int array
+boolean myPortIsOpen = false;   //not connected until port is chosen through dropdown menu
+boolean startPlaying = true;    //turn play on
+int LINE_FEED=10;               //line feed ASCII code 10 to break the string of incoming data
 
-int[] vals;
 
-int [] wavePos = {500, 550, 600, 650};
 
-boolean startPlaying = false;
+int [] wavePos = {
+  420, 510, 600, 690
+};
+
+
 //--setup-----------------------------------------------------------------------------------------------------setup()
 void setup() {
   size(260, 750, P3D);
   smooth();
 
   //println(Serial.list());
-
+  
   //MINIM///////////////////////////////////////////////////////
   minim = new Minim(this);
 
@@ -89,8 +96,8 @@ void draw() {
     for (int i =0; i < 4; i++) {
       stroke(255);
       line(45 + i*56, 200, 45 + i*56, 370);
-      //fill(255);
-      //rect(40 + i*56, 285-35/2, 10, 35);
+      //      fill(255);
+      //      rect(40 + i*56, 285-35/2, 10, 35);
     }
 
     if (startPlaying) {
@@ -111,7 +118,7 @@ void draw() {
         fill(255);
         rect(40 + i*56, int(map(vals[i], 0, 255, 335, 200)), 10, 35);
         player[i].setGain(map(vals[i], 0, 255, -40., 0.)); //set the gain according to the mapped values of our sliders
-        if(player[i].getGain() <= -39.) player[i].setGain(-2000.);
+        if (player[i].getGain() <= -39.) player[i].setGain(-2000.);
 
 
         //draw the waveform
@@ -120,8 +127,8 @@ void draw() {
         {
           float x1 = map( j, 0, player[0].bufferSize(), 0, width );
           float x2 = map( j+1, 0, player[0].bufferSize(), 0, width );
-          line( x1, wavePos[i] + player[i].left.get(j)*50 - vals[i]*0.025, x2, wavePos[i] + player[i].left.get(j+1)*50 + vals[i]*0.025);
-          line( x1, wavePos[i] + player[i].right.get(j)*50 - vals[i]*0.025, x2, wavePos[i] + player[i].right.get(j+1)*50 + vals[i]*0.025);
+          line( x1, wavePos[i] + player[i].left.get(j)*50 - vals[i]*0.01, x2, wavePos[i] + player[i].left.get(j+1)*50 + vals[i]*0.01);
+          line( x1, wavePos[i] + player[i].right.get(j)*50 - vals[i]*0.01, x2, wavePos[i] + player[i].right.get(j+1)*50 + vals[i]*0.01);
         }
       }
     }
@@ -131,10 +138,11 @@ void draw() {
 
 // handle serial data-----------------------------------------------------------------------------------------------------serialEvent(Serial p)
 void serialEvent(Serial p) {
-  String data = p.readStringUntil(LINE_FEED);
-  if (data != null) {
-    //println(data);
-    vals = int(split(data, ' '));
+  if (myPortIsOpen) {
+    data = p.readStringUntil(LINE_FEED);
+    if (data != null) {
+      //println(data);
+      vals = int(split(data, ' '));
+    }
   }
 }
-
