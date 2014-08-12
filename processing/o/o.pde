@@ -1,13 +1,13 @@
- /*
+/*
   *
-  * This sketch demonstrates how read values from an o 
-  * monotasker in Processing and trigger play/pause of an
-  * audio file, and control playing position with the 
-  * minimlibrary.
-  * for more info visit monotaskers.com.
-  *
-  */
-  
+ * This sketch demonstrates how read values from an o 
+ * monotasker in Processing and trigger play/pause of an
+ * audio file, and control playing position with the 
+ * minimlibrary.
+ * for more info visit monotaskers.com.
+ *
+ */
+
 import processing.serial.*;
 import controlP5.*;
 import ddf.minim.*;
@@ -22,6 +22,7 @@ DropdownList d1;
 
 PFont f;
 char val;
+int valInt = 0;
 
 Serial myPort;
 String portName = Serial.list()[0];
@@ -77,19 +78,21 @@ void draw() {
 
   if (myPortIsOpen) {                    //only execute the rest of the loop if I have selected a port and established a connection
     if (myPort.available() > 0) {        // If data is available,
-      int valInt = myPort.read();        // read it and store it in val
+      valInt = myPort.read();        // read it and store it in val
       val = char(valInt);                //convert to char
       println(val);
     }
 
-
-
     pushMatrix();
     translate(width*0.5, 300);
+
     if (val != 'P' && val!= ' ') {
       angle = map(val, 0, 23, 0, 360);
       float newPos = map(val, 0, 23, -12, 12);
-      player.cue(player.position()+int(newPos));
+
+      player.setGain(map(val, 0, 23, -40., -6.)); //set the gain according to the mapped values of our sliders
+      // if (player[i].getGain() <= -39.) player[i].setGain(-2000.);
+
       val = ' ';
     }
     else if (val == 'P') push();
@@ -105,24 +108,25 @@ void draw() {
     noStroke();
     ellipse(0, 0, 55, 55);
     popMatrix();
-    
-    
-    if(player.isPlaying()){
-      stroke(255);
-    for(int i = 0; i < player.bufferSize() - 1; i++)
-  {
-    float x1 = map( i, 0, player.bufferSize(), 0, width );
-    float x2 = map( i+1, 0, player.bufferSize(), 0, width );
-    line( x1, height*0.65 + player.left.get(i)*50, x2, height*0.65 + player.left.get(i+1)*50 );
-    line( x1, height*0.65 +100 + player.right.get(i)*50, x2, height*0.65+100 + player.right.get(i+1)*50 );
-  }};
-  }
 
+
+    if (player.isPlaying()) {
+      stroke(255);
+      for (int i = 0; i < player.bufferSize() - 1; i++)
+      {
+        float x1 = map( i, 0, player.bufferSize(), 0, width );
+        float x2 = map( i+1, 0, player.bufferSize(), 0, width );
+        line( x1, height*0.65 + player.left.get(i)*valInt*2, x2, height*0.65 + player.left.get(i+1)*valInt*2 );
+        line( x1, height*0.65 +100 + player.right.get(i)*valInt*2, x2, height*0.65+100 + player.right.get(i+1)*valInt*2 );
+      }
+    };
+  }
 }
 
 
 void push() {
   background(255);
+
   val = ' ';
   play = !play;
 
