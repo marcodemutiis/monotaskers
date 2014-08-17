@@ -30,7 +30,7 @@ void noteOff(byte channel, byte pitch, byte velocity) {
   MIDIEvent noteOff = {0x08, 0x80 | channel, pitch, velocity};
   MIDIUSB.write(noteOff);
 }
-int channel = 14;
+int channel = 0; //cahnnel 0 = channel 1
 
 int numStep = 8;    // number of steps
 int numInst = 8;    // number of instruments
