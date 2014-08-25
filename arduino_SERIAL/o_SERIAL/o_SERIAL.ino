@@ -122,10 +122,12 @@ bool debounce(int pin)
 
 //SETUP:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 void setup(){
-  Serial.begin(9600);
 
   regOne.allOff();                        //switch off all leds
+
+  Serial.begin(9600);                      //init Serial communication
   digitalWrite(encoderSwitchPin, HIGH);   //internal pull up resistors for pushbutton reading
+
 
   frameCounter    =   0;
   ledCounter      =   -1;
@@ -282,6 +284,7 @@ void oneRingIndexLED(int index){
   }
 
 }
+
 
 
 
