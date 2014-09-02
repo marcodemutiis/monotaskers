@@ -49,10 +49,10 @@ boolean drummachineBool = 0;
 //button and led pins definition
 #define btns 8
 int pushBtn[btns] = {
-  8, 6, 4, 2, A0, A2, 12, 10
+  8, 6, 4, A4, A0, A2, 12, 10 //2 is A4, 
 };
 int ledPin[btns] = {
-  9, 7, 5, 3, 13, A1, A3, 11
+  9, 7, 5, A5, 13, A1, A3, 11//3 is A5
 };
 
 int btnVal[btns];     //store button value
