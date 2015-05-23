@@ -8,20 +8,28 @@
  Version	0
 
  This is a sample code to be uploaded for Binome, a Monotaskers module made of 4 silicon pusbutton, inspired by the Monome.
- 
- 
+
+
  Requires the MIDI library (optional) / use with Hairless Midi software on receiving computer.
- 
+
   useful teaching applications:
 - Push buttons
-- MIDI 
-- Serial communication ( chars )
+- MIDI
+- debounce
 */
 
-#include <MIDI.h>
-//#define MIDION
-#define SERIALOUT
 
+void noteOn(byte channel, byte pitch, byte velocity) {
+  MIDIEvent noteOn = {0x09, 0x90 | channel, pitch, velocity};
+  MIDIUSB.write(noteOn);
+}
+
+void noteOff(byte channel, byte pitch, byte velocity) {
+  MIDIEvent noteOff = {0x08, 0x80 | channel, pitch, velocity};
+  MIDIUSB.write(noteOff);
+}
+
+int channel = 0;
 // Button Grounds
 const int buttonMatrix1 = 13;
 const int buttonMatrix2 = 4;
@@ -37,45 +45,54 @@ const int redLED   = 11;
 const int greenLED = 10;//inv
 const int blueLED  = 9;//inv
 
-int white[]  =   { 
-  255, 255, 255 };
-int grounds[4]={
-  ledGnd1, ledGnd2, ledGnd3, ledGnd4};
+int white[]  =   {
+  255, 255, 255
+};
+int grounds[4] = {
+  ledGnd1, ledGnd2, ledGnd3, ledGnd4
+};
 
 int fourColors[4];
-int blackOrWhite[2]={
-  HIGH, LOW};
+int blackOrWhite[2] = {
+  HIGH, LOW
+};
 
-char serialOutMsgs[4]={
-  '1', '2', '3', '4'};
-char serialOutMsgsUp[4]={
-  '5', '6', '7', '8'};
+char serialOutMsgs[4] = {
+  '1', '2', '3', '4'
+};
+char serialOutMsgsUp[4] = {
+  '5', '6', '7', '8'
+};
 /*
 //GARAGE BAND HIP HOP DRUM KIT or KONTAKT 5 + OldTapeDrum Library
- int MIDIOutMsgs[4]={ 
+ int MIDIOutMsgs[4]={
  42, 36, 40, 39 };
  */
 
 /*
-//REASON 
- int MIDIOutMsgs[4]={ 
+//REASON
+ int MIDIOutMsgs[4]={
  50, 60, 70, 80 };
  */
 
 
 //KONTAKT ukulele Strum
-int MIDIOutMsgs[4]={ 
-  67, 60, 81, 65 };
+int MIDIOutMsgs[4] = {
+  67, 60, 81, 65
+};
 
-int MIDIOutMsgsUP[4]={ 
-  91, 88, 91, 89 };
+int MIDIOutMsgsUP[4] = {
+  91, 88, 91, 89
+};
 
 
 //button array
-int button[]             =       {  
-  buttonMatrix1, buttonMatrix2, buttonMatrix3, buttonMatrix4 };
-int btnPressed[]         =       {  
-  LOW, LOW, LOW, LOW };
+int button[]             =       {
+  buttonMatrix1, buttonMatrix2, buttonMatrix3, buttonMatrix4
+};
+int btnPressed[]         =       {
+  LOW, LOW, LOW, LOW
+};
 
 //debounce
 int debounceDelay  =  20;
@@ -91,8 +108,8 @@ long intervalNOTOUCH = 600000;          // interval at which to trigger the auto
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::SETUP
-void setup() 
-{ 
+void setup()
+{
   // define button inputs
   pinMode(buttonMatrix1, INPUT);
   pinMode(buttonMatrix2, INPUT);
@@ -104,35 +121,26 @@ void setup()
   pinMode(ledGnd2, OUTPUT);
   pinMode(ledGnd3, OUTPUT);
   pinMode(ledGnd4, OUTPUT);
-  
+
   // define RGB pins outputs (even if we use white led we need to set them as outputs)
   pinMode(redLED, OUTPUT);
   pinMode(greenLED, OUTPUT);
   pinMode(blueLED, OUTPUT);
 
   //blink leds 5 times
-  for(int i=0; i<5;i++){
-    for(int j =0; j<4;j++){
+  for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < 4; j++) {
       digitalWrite(grounds[j], HIGH);
-    } 
+    }
     delay(50);
-    for(int j =0; j<4;j++){
+    for (int j = 0; j < 4; j++) {
       digitalWrite(grounds[j], LOW);
-    }  
+    }
     delay(50);
   }
 
-#ifdef MIDION
-  // Launch MIDI with default options
-  // (input channel is set to 4)
-  MIDI.begin(4); 
-  Serial.begin(115200);
-#endif
 
-#ifdef SERIALOUT
   Serial.begin(9600);
-//  establishContact();
-#endif
 
 }
 
@@ -145,23 +153,30 @@ void loop() {
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::BUTTONPRESS
-void buttonPress(){
+void buttonPress() {
   //NOTOUCH::if the device is plugged in and noone touches it for more than one minute it starts randomly turning on and off buttons.
-  if(noTouch){
+  if (noTouch) {
     unsigned long currentMillisBUTTON = millis();
 
-    if(currentMillisBUTTON - previousMillisBUTTON > intervalBUTTON) {
-      previousMillisBUTTON = currentMillisBUTTON; 
-      for(int j =0; j<4; j++){
-        int rand = random(0,2);
-        fourColors[j]=blackOrWhite[rand];
-        #ifdef SERIALOUT
-        Serial.write(serialOutMsgs[rand]);
-        #endif
+    if (currentMillisBUTTON - previousMillisBUTTON > intervalBUTTON) {
+      previousMillisBUTTON = currentMillisBUTTON;
+      for (int j = 0; j < 4; j++) {
+        int rand = random(0, 2);
+        fourColors[j] = blackOrWhite[rand];
       }
-      for(int j =0; j<4;j++){
+      //      UNCOMMENT BELOW TO MAKE ENABLE MIDIOUT DURING NOTOUCH
+      //      //turn off the notes for all
+      //       for(int j =0; j<4;j++){
+      //          noteOff(channel, MIDIOutMsgs[j], 0);   // Stop the note
+      //       }
+
+      for (int j = 0; j < 4; j++) {
         digitalWrite(grounds[j], fourColors[j]);
-      }  
+        //      UNCOMMENT BELOW TO MAKE ENABLE MIDIOUT DURING NOTOUCH
+        //        if(fourColors[j])noteOn(channel, MIDIOutMsgs[j],127);  // Send a Note (pitch 42, velo 127 on channel 1)
+        //        delay(500);
+        //        if(fourColors[j])noteOff(channel, MIDIOutMsgs[j], 0);   // Stop the note
+      }
     }
 
   }
@@ -169,103 +184,88 @@ void buttonPress(){
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::NOTOUCH
   unsigned long currentMillisNOTOUCH = millis();
 
-  for(int i=0; i< sizeof(button)/sizeof(int);i++){
+  for (int i = 0; i < sizeof(button) / sizeof(int); i++) {
 
-    if (digitalRead(button[i]) == 0 && btnPressed[i]==LOW){                   //if no button is pushed and was not previously pushed, 
-      if(!noTouch){
-        if(currentMillisNOTOUCH - previousMillisNOTOUCH > intervalNOTOUCH) {
+    if (digitalRead(button[i]) == 0 && btnPressed[i] == LOW) {                //if no button is pushed and was not previously pushed,
+      if (!noTouch) {
+        if (currentMillisNOTOUCH - previousMillisNOTOUCH > intervalNOTOUCH) {
           previousMillisNOTOUCH = currentMillisNOTOUCH;
-          noTouch=true; 
+          noTouch = true;
         }
-        for(int j =0; j<4;j++){
+        for (int j = 0; j < 4; j++) {
           digitalWrite(grounds[j], LOW);
-        }    
+        }
       }
 
     }
 
-    else if(digitalRead(button[i]) == 0 && btnPressed[i]==HIGH){              //if a button is released after being pushed, we detect the button being pushed and released and we change the btn status and turn off the led
+    else if (digitalRead(button[i]) == 0 && btnPressed[i] == HIGH) {          //if a button is released after being pushed, we detect the button being pushed and released and we change the btn status and turn off the led
 
-      btnPressed[i]=LOW;
-#ifdef MIDION
-      MIDI.sendNoteOff(MIDIOutMsgs[i],0,1);   // Stop the note 
+      btnPressed[i] = LOW;
+
+      noteOff(channel, MIDIOutMsgs[i], 0);   // Stop the note
       ////////ukulele up stroke on
       delay(1);
-      MIDI.sendNoteOn(MIDIOutMsgsUP[i],127,1);  // Send a Note (pitch 42, velo 127 on channel 1)
+      noteOn(channel, MIDIOutMsgsUP[i], 127);  // Send a Note (pitch 42, velo 127 on channel 1)
       delay(1);
-      MIDI.sendNoteOff(MIDIOutMsgsUP[i],0,1);   // Stop the note
+      noteOff(channel, MIDIOutMsgsUP[i], 0);   // Stop the note
       //////////
-#endif
-#ifdef SERIALOUT
-      Serial.write(serialOutMsgsUp[i]);
-#endif
+
     }
 
-    else if(digitalRead(button[i]) == 1 && btnPressed[i]==LOW){              //if a button which was not previously pressed is pushed, the PressedDown state is recorded in the bool array and we trigger the note
+    else if (digitalRead(button[i]) == 1 && btnPressed[i] == LOW) {          //if a button which was not previously pressed is pushed, the PressedDown state is recorded in the bool array and we trigger the note
 
-      if (debounce(button[i])==true)
+      if (debounce(button[i]) == true)
       {
         noTouch = false;
         previousMillisNOTOUCH = currentMillisNOTOUCH;
-        //set buttonPressed color to white and the other three to dark       
-        for(int j =0; j<4;j++){
+        //set buttonPressed color to white and the other three to dark
+        for (int j = 0; j < 4; j++) {
           digitalWrite(grounds[j], LOW);
-        }  
+        }
         digitalWrite(grounds[i], HIGH);
 
-        btnPressed[i]=HIGH;
+        btnPressed[i] = HIGH;
 
         //send serial or MIDI message
-#ifdef MIDION
-
-        MIDI.sendNoteOn(MIDIOutMsgs[i],127,1);  // Send a Note (pitch 42, velo 127 on channel 1)
-#endif
-
-#ifdef SERIALOUT
-        Serial.write(serialOutMsgs[i]);
-#endif
-
-
+        noteOn(channel, MIDIOutMsgs[i], 127); // Send a Note (pitch 42, velo 127 on channel 1)
       }
     }
 
-    else if(digitalRead(button[i]) == 1 && btnPressed[i]==HIGH){             //if a button which was previously pressed is still pushed, we leave the lights on
+    else if (digitalRead(button[i]) == 1 && btnPressed[i] == HIGH) {         //if a button which was previously pressed is still pushed, we leave the lights on
 
-      for(int j =0; j<4;j++){
+      for (int j = 0; j < 4; j++) {
         digitalWrite(grounds[j], LOW);
-      }  
+      }
       digitalWrite(grounds[i], HIGH);
-
-
-
     }
   }
 }
 
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::DEBOUNCE
-// debounce returns true if the switch in the given pin is closed and stable 
+// debounce returns true if the switch in the given pin is closed and stable
 boolean debounce(int pin)
 {
   boolean state;
   boolean previousState;
-  previousState = digitalRead(pin); // store switch state 
-  for(int counter=0; counter < debounceDelay; counter++)
+  previousState = digitalRead(pin); // store switch state
+  for (int counter = 0; counter < debounceDelay; counter++)
   {
-    delay(1); // wait for 1 millisecond 
+    delay(1); // wait for 1 millisecond
     state = digitalRead(pin); // read the pin
-    if( state != previousState)
+    if ( state != previousState)
     {
       counter = 0; // reset the counter if the state changes
-      previousState = state; // and save the current state 
+      previousState = state; // and save the current state
     }
   }
-  // here when the switch state has been stable longer than the debounce period 
+  // here when the switch state has been stable longer than the debounce period
   return state;
 }
 
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::DEBOUNCE
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::ESTABLIISH CONTACT
 void establishContact() {
   while (Serial.available() <= 0) {
     Serial.println("1");   // send an initial string

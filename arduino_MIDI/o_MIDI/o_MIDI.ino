@@ -9,16 +9,16 @@
 
  This is a sample code to be uploaded for the o, a Monotaskers module made of a rotary encoder (push-button enabled) with a 24 led ring around it,
  inspired by similar controller knob interfaces, like the arc and the duet.
- 
+
  In this example the lights will turn on according to the position of the rotary encoder, and will blink all at once if the encoder is pushed. If the monotasker
  is not touched for longer than 10 minutes it will start a light animation unti it is touched again.
- 
- This example is madeto be used with the Arduino Nano Dreamer V3 by DF Robot, which can be used to send native USB MIDI messages straight to any software that 
+
+ This example is madeto be used with the Arduino Nano Dreamer V3 by DF Robot, which can be used to send native USB MIDI messages straight to any software that
  receives messages via MIDI protocol (e.g. Ableton Live, Reason, Cubase, Kontakt...).
- 
+
  To send USB MIDI messages you need to install Ralf Kistner's arcore repository in your arduino/hardware folder (on Arduino 1.5.4 or greater), upload to board
  Arduino Leonardo (arcore). More info here: https://github.com/rkistner/arcore
- 
+
  Requires ShiftOutX library by Juan Hernandez and the QuandEncoder library by Pedro Rodrigues.
 
  useful teaching applications:
@@ -31,7 +31,7 @@
 
 
 //NATIVE MIDI stuff
-int channel = 15; //note: MIDI channels range from 1 to 16, but equals to range 0 to 15. in other words, int channel = 0; will result in sending message in MIDI channel 1 on your MIDI enabled software.
+int channel = 0; //note: MIDI channels range from 1 to 16, but equals to range 0 to 15. in other words, int channel = 0; will result in sending message in MIDI channel 1 on your MIDI enabled software.
 
 void noteOn(byte channel, byte pitch, byte velocity) {
   MIDIEvent noteOn = {0x09, 0x90 | channel, pitch, velocity};
@@ -80,6 +80,7 @@ int frameCounter;
 int ledCounter;
 int indexLED;
 bool reverse;
+bool ONOFF;
 
 //nobody has touched the controller for more than 1 minute/////////////////////////////////////////////////////////////////////////////////////////////////
 boolean noTouch = true;
@@ -193,13 +194,16 @@ void loop() {
 
 
         //////MIDI message here:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-        noteOn(channel, 48, 64);   // Channel 0, middle C, normal velocity
+        ONOFF = !ONOFF;
+        
+        if(ONOFF){
+        noteOff(channel, 40, 0);  // Channel 0, middle C, normal velocity
         MIDIUSB.flush();
-        //delay(10);
-
-        noteOff(channel, 48, 64);  // Channel 0, middle C, normal velocity
+        }
+        else{
+        noteOn(channel, 40, 127);   // Channel 0, middle C, normal velocity
         MIDIUSB.flush();
-        //delay(1);
+        }
 
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

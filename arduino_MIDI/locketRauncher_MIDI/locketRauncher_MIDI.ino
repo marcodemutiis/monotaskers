@@ -35,14 +35,25 @@ int channel = 0;
 
 
 #define tot 4
+#define invertedBtns //uncomment this to invert the behaviour of the buttons in ON and (ON) state
 
+
+
+#ifdef invertedBtns //inverted behaviour of ON and (ON) button state
+int togglesSTATIC[tot] = { //pins connected to the (ON) toggle connectors
+ 7, A0, 12, 8  };
+int togglesTEMP[tot] = { //pins connected to the ON toggle connectors
+   4, A1, 11, A2  };
+   
+#else//standard behaviour of ON and (ON) button state
 int togglesSTATIC[tot] = { //pins connected to the ON toggle connectors
-  4, A1, 11, A2  };
+4, A1, 11, A2  }; 
 int togglesTEMP[tot] = { //pins connected to the (ON) toggle connectors
-  7, A0, 12, 8  };
+7, A0, 12, 8  }; 
+#endif
+
 int leds[tot] = { //leds
   5, 6, 9, 10 };
-
 
 int midiNoteA[4]   =   {
   64, 65, 66, 67
